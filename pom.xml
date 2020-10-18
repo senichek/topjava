@@ -99,7 +99,14 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.2.13</version>
+            <version>42.2.2</version>
+        </dependency>
+
+        <!--DataBase-->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.version}</version>
         </dependency>
 
         <!--Web-->
@@ -135,6 +142,8 @@
             <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
+
+
     </dependencies>
 
     <profiles>
