@@ -48,9 +48,9 @@ public class MealServiceTest {
 
     @Test
     public void create() throws Exception {
-        Meal created = service.create(getNew(), USER_ID);
+        Meal created = service.create(getNewMeal(), USER_ID);
         int newId = created.id();
-        Meal newMeal = getNew();
+        Meal newMeal = getNewMeal();
         newMeal.setId(newId);
         MEAL_MATCHER.assertMatch(created, newMeal);
         MEAL_MATCHER.assertMatch(service.get(newId, USER_ID), newMeal);
@@ -61,7 +61,6 @@ public class MealServiceTest {
         assertThrows(DataAccessException.class, () ->
                 service.create(new Meal(null, meal1.getDateTime(), "duplicate", 100), USER_ID));
     }
-
 
     @Test
     public void get() throws Exception {
