@@ -2,6 +2,7 @@ package ru.javawebinar.topjava.repository;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import ru.javawebinar.topjava.model.User;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -16,7 +17,8 @@ public class JpaUtil {
         SessionFactory sf = s.getSessionFactory();
 //        sf.evict(User.class);
 //        sf.getCache().evictEntity(User.class, BaseEntity.START_SEQ);
-//        sf.getCache().evictEntityRegion(User.class);
+        sf.getCache().evictEntityRegion(User.class);
+
         sf.getCache().evictAllRegions();
     }
 }
