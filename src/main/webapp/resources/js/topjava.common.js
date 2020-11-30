@@ -4,7 +4,7 @@ function makeEditable() {
     form = $('#detailsForm');
     $(".delete").click(function () {
         if (confirm('Are you sure?')) {
-            deleteRow($(this).attr("id"));
+            deleteRow($(this).closest('tr').attr("id"));
         }
     });
 
@@ -75,4 +75,44 @@ function failNoty(jqXHR) {
         type: "error",
         layout: "bottomRight"
     }).show();
+}
+
+function filterMeals() {
+    // get all the form inputs into an array.
+    var inputs = $('#filterForm :input');
+    var values = {};
+    inputs.each(function () {
+        values[this.name] = $(this).val();
+    });
+
+    const querystring = createQueryString(values);
+
+    $.ajax({
+        url: ctx.ajaxUrl + 'filter?' + querystring,
+        type: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            ctx.datatableApi.clear().rows.add(data).draw();
+            successNoty("Filtering is completed")
+        }
+    });
+}
+
+function createQueryString(data) {
+    const ret = [];
+    for (let d in data)
+        ret.push(encodeURIComponent(d) + "=" + encodeURIComponent(data[d]));
+    return ret.join("&");
+}
+
+function clearFilter() {
+    $.ajax({
+        url: ctx.ajaxUrl + 'filter',
+        type: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            ctx.datatableApi.clear().rows.add(data).draw();
+            successNoty("Filtering is cleared")
+        }
+    });
 }
