@@ -1,41 +1,54 @@
-var ctx;
+var ctx, mealAjaxUrl = "profile/meals/";
 
-function updateFilteredTable() {
-    $.ajax({
-        type: "GET",
-        url: "profile/meals/filter",
-        data: $("#filter").serialize()
-    }).done(updateTableByData);
-}
-
-function clearFilter() {
-    $("#filter")[0].reset();
-    $.get("profile/meals/", updateTableByData);
-}
-
+// $(document).ready(function () {
 $(function () {
+    // https://stackoverflow.com/a/5064235/548473
     ctx = {
-        ajaxUrl: "profile/meals/",
-        datatableApi: $("#datatable").DataTable({
+        ajaxUrl: mealAjaxUrl,
+        datatableApi: $("#datatableMeal").DataTable({
+            "ajax": {
+                "url": mealAjaxUrl,
+                "dataSrc": ""
+            },
             "paging": false,
             "info": true,
             "columns": [
                 {
-                    "data": "dateTime"
+                    "data": "dateTime",
+                    "render": function (date, type, row) {
+                        if (type === "display") {
+                            return date.replace("T", " ").substring(0, 16);
+                        }
+                        return date;
+                    }
                 },
                 {
-                    "data": "description"
+                    "data": "description",
+                    "render": function (data, type, row) {
+                        if (type === "display") {
+                            return data;
+                        }
+                        return data;
+                    }
                 },
                 {
-                    "data": "calories"
+                    "data": "calories",
+                    "render": function (data, type, row) {
+                        if (type === "display") {
+                            return data;
+                        }
+                        return data;
+                    }
                 },
                 {
-                    "defaultContent": "Edit",
-                    "orderable": false
+                    "orderable": false,
+                    "defaultContent": "",
+                    "render": renderEditBtn
                 },
                 {
-                    "defaultContent": "Delete",
-                    "orderable": false
+                    "orderable": false,
+                    "defaultContent": "",
+                    "render": renderDeleteBtn
                 }
             ],
             "order": [
@@ -43,9 +56,18 @@ $(function () {
                     0,
                     "desc"
                 ]
-            ]
+            ],
+            "createdRow": function (row, data, dataIndex) {
+                if (data.excess) {
+                    $(row).attr("data-mealExcess", true);
+                } else {
+                    $(row).attr("data-mealExcess", false);
+                }
+            }
         }),
-        updateTable: updateFilteredTable
+        updateTable: function () {
+            $.get(mealAjaxUrl, updateFilteredTable());
+        }
     };
     makeEditable();
 });
