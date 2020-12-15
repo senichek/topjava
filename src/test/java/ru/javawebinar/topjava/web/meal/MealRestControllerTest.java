@@ -124,4 +124,25 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(MEAL_TO_MATCHER.contentJson(getTos(meals, user.getCaloriesPerDay())));
     }
+
+    @Test
+    void createUpdateDuplicateDate() throws Exception {
+        perform(MockMvcRequestBuilders.post(REST_URL + "?dateTime=2020-01-31T20:00:00&description=restMeal&calories=555")
+                .with(userHttpBasic(user)))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void createEmptyDescription() throws Exception {
+        perform(MockMvcRequestBuilders.post(REST_URL + "?dateTime=2020-01-17T15:47:00&description=&calories=555")
+                .with(userHttpBasic(user)))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void createEmptyCalories() throws Exception {
+        perform(MockMvcRequestBuilders.post(REST_URL + "?dateTime=2020-01-17T15:47:00&description=RESTmeal&calories=")
+                .with(userHttpBasic(user)))
+                .andExpect(status().isInternalServerError());
+    }
 }

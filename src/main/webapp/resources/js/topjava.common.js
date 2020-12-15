@@ -93,12 +93,69 @@ function successNoty(key) {
     }).show();
 }
 
+function validationErrorMessage(jqXHR) {
+    debugger;
+    var errorInfo = JSON.parse(jqXHR.responseText);
+    var i;
+    var errorMessage = "";
+    for (i = 0; i < errorInfo.field.length; i++) {
+        if (errorInfo.field[i] == "dateTime") {
+            if (errorInfo.detail[i].includes("null")) {
+                errorMessage += "[" + i18n["meal.dateTime"] + "]" + " " + i18n["common.empty"] + "<br>";
+            } else {
+                errorMessage += "[" + i18n["meal.dateTime"] + "]" + " " + errorInfo.detail[i] + "<br>";
+            }
+        }
+        if (errorInfo.field[i] == "description") {
+            if (errorInfo.detail[i].includes("null")) {
+                errorMessage += "[" + i18n["meal.description"] + "]" + " " + i18n["common.empty"] + "<br>";
+            } else {
+                errorMessage += "[" + i18n["meal.description"] + "]" + " " + errorInfo.detail[i] + "<br>";
+            }
+        }
+        if (errorInfo.field[i] == "calories") {
+            if (errorInfo.detail[i].includes("null")) {
+                errorMessage += "[" + i18n["meal.calories"] + "]" + " " + i18n["common.empty"] + "<br>";
+            } else {
+                errorMessage += "[" + i18n["meal.calories"] + "]" + " " + errorInfo.detail[i] + "<br>";
+            }
+        }
+        if (errorInfo.field[i] == "name") {
+            if (errorInfo.detail[i].includes("null")) {
+                errorMessage += "[" + i18n["user.name"] + "]" + " " + i18n["common.empty"] + "<br>";
+            } else {
+                errorMessage += "[" + i18n["user.name"] + "]" + " " + errorInfo.detail[i] + "<br>";
+            }
+        }
+        if (errorInfo.field[i] == "email") {
+            if (errorInfo.detail[i].includes("null")) {
+                errorMessage += "[" + i18n["user.email"] + "]" + " " + i18n["common.empty"] + "<br>";
+            } else {
+                errorMessage += "[" + i18n["user.email"] + "]" + " " + errorInfo.detail[i] + "<br>";
+            }
+        }
+        if (errorInfo.field[i] == "password") {
+            if (errorInfo.detail[i].includes("null")) {
+                errorMessage += "[" + i18n["user.password"] + "]" + " " + i18n["common.empty"] + "<br>";
+            } else {
+                errorMessage += "[" + i18n["user.password"] + "]" + " " + errorInfo.detail[i] + "<br>";
+            }
+        }
+        if (errorInfo.field[i] == "dateTime" && errorInfo.detail[i].includes("meals_unique_user_datetime_idx")) {
+            errorMessage = i18n["meal.dupeDateTime"];
+        }
+        if (errorInfo.field[i] == "email" && errorInfo.detail[i].includes("users_unique_email_idx")) {
+            errorMessage = i18n["user.emailExists"];
+        }
+    }
+    return errorMessage;
+}
+
 function failNoty(jqXHR) {
     closeNoty();
-    var errorInfo = jqXHR.responseJSON;
     failedNote = new Noty({
-        text: "<span class='fa fa-lg fa-exclamation-circle'></span> &nbsp;" + i18n["common.errorStatus"] + ": " + jqXHR.status +
-            "<br>" + errorInfo.type + "<br>" + errorInfo.detail,
+        text: "<span class='fa fa-lg fa-exclamation-circle'></span> &nbsp;" + i18n["common.dataTypeError"] +
+            "<br>" + validationErrorMessage(jqXHR),
         type: "error",
         layout: "bottomRight"
     }).show();

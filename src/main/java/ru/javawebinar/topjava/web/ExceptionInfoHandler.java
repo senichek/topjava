@@ -7,6 +7,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +21,7 @@ import ru.javawebinar.topjava.util.exception.IllegalRequestDataException;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 import static ru.javawebinar.topjava.util.exception.ErrorType.*;
 
@@ -27,7 +30,7 @@ import static ru.javawebinar.topjava.util.exception.ErrorType.*;
 public class ExceptionInfoHandler {
     private static Logger log = LoggerFactory.getLogger(ExceptionInfoHandler.class);
 
-    //  http://stackoverflow.com/a/22358422/548473
+    //  http://stackoverflow.com/a/223584221/548473
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     @ExceptionHandler(NotFoundException.class)
     public ErrorInfo handleError(HttpServletRequest req, NotFoundException e) {
@@ -52,14 +55,37 @@ public class ExceptionInfoHandler {
         return logAndGetErrorInfo(req, e, true, APP_ERROR);
     }
 
-    //    https://stackoverflow.com/questions/538870/should-private-helper-methods-be-static-if-they-can-be-static
     private static ErrorInfo logAndGetErrorInfo(HttpServletRequest req, Exception e, boolean logException, ErrorType errorType) {
         Throwable rootCause = ValidationUtil.getRootCause(e);
-        if (logException) {
-            log.error(errorType + " at request " + req.getRequestURL(), rootCause);
+
+        if (rootCause.getMessage().contains("meals_unique_user_datetime_idx")) {
+            String[] messages = new String[1];
+            String[] fields = new String[1];
+            messages[0] = rootCause.getMessage();
+            fields[0] = "dateTime";
+            return new ErrorInfo(req.getRequestURL(), errorType, messages, fields);
+        } else if (rootCause.getMessage().contains("users_unique_email_idx")) {
+            String[] messages = new String[1];
+            String[] fields = new String[1];
+            messages[0] = rootCause.getMessage();
+            fields[0] = "email";
+            return new ErrorInfo(req.getRequestURL(), errorType, messages, fields);
         } else {
-            log.warn("{} at request  {}: {}", errorType, req.getRequestURL(), rootCause.toString());
+
+            if (!logException) {
+                log.warn("{} at request  {}: {}", errorType, req.getRequestURL(), rootCause.toString());
+                return null;
+            } else {
+                List<FieldError> br = ((BindingResult) rootCause).getFieldErrors();
+                String[] messages = new String[br.size()];
+                String[] fields = new String[br.size()];
+                for (int i = 0; i < br.size(); i++) {
+                    fields[i] = br.get(i).getField();
+                    messages[i] = br.get(i).getDefaultMessage();
+                }
+                return new ErrorInfo(req.getRequestURL(), errorType, messages, fields);
+            }
+
         }
-        return new ErrorInfo(req.getRequestURL(), errorType, rootCause.toString());
     }
 }
